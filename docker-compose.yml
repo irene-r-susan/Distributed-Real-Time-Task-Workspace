@@ -1,0 +1,48 @@
+services:
+  node_app_1:
+    build: .
+    # Tell Docker to load variables from the root .env file 👇
+    env_file:
+      - .env
+    environment:
+      - PORT=${NODE_INTERNAL_PORT}
+      - DOCKER_ENV=true
+      - REDIS_URL=redis://redis_server:${REDIS_INTERNAL_PORT}
+      - JWT_SECRET=${JWT_SECRET} # 👈 Injected securely into process.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "3000"
+    depends_on:
+      - redis_server
+
+  node_app_2:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - PORT=${NODE_INTERNAL_PORT}
+      - DOCKER_ENV=true
+      - REDIS_URL=redis://redis_server:${REDIS_INTERNAL_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "3000"
+    depends_on:
+      - redis_server
+
+  redis_server:
+    image: redis:alpine
+    expose:
+      - "6379"
+
+  nginx_lb:
+    image: nginx:alpine
+    volumes:
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+    ports:
+      - "80:80" 
+    depends_on:
+      - node_app_1
+      - node_app_2
