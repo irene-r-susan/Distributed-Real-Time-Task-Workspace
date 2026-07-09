@@ -1,0 +1,33 @@
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS task_lists (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(20) DEFAULT 'private',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS task_list_members (
+  list_id INTEGER REFERENCES task_lists(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  invited_by INTEGER REFERENCES users(id),
+  joined_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (list_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+  id SERIAL PRIMARY KEY,
+  list_id INTEGER REFERENCES task_lists(id) ON DELETE CASCADE,
+  task TEXT NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  created_by INTEGER REFERENCES users(id),
+  completed_by INTEGER REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
