@@ -7,7 +7,7 @@ export function SocketProvider({ children }) {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io('http://localhost', { transports: ['websocket'] });
+    const socket = io('/', { transports: ['websocket'] });
     socketRef.current = socket;
     return () => socket.disconnect();
   }, []);

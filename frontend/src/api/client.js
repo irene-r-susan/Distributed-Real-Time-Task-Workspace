@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost';
+const API_BASE = '';
 
 export function getToken() {
   return localStorage.getItem('token');
